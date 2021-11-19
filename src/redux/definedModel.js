@@ -1,8 +1,17 @@
 import { combineReducers } from "redux";
 import { useSelector } from "react-redux";
+import produce from "immer";
 import { store } from "./store";
 
 const reducers = {};
+
+function getActionType(modelName, actionName) {
+  return `${modelName}-${actionName}`;
+}
+
+function getActionLoadingType(modelName) {
+  return `${modelName}-LOADING`;
+}
 
 export function definedModel(name, options) {
   const { initialState, actions, effects } = options;
@@ -10,9 +19,13 @@ export function definedModel(name, options) {
   const effectKeys = Object.keys(effects || {});
 
   // add reducer
-  function reducerFn(state = initialState, action) {
+  function reducerFn(state = { ...initialState, selfLoading: {} }, action) {
     const { type, payload } = action;
-    if (actionKeys.indexOf(type) !== -1 || effectKeys.indexOf(type) !== -1) {
+    if (
+      actionKeys.find((key) => getActionType(name, key) === type) ||
+      effectKeys.find((key) => getActionType(name, key) === type) ||
+      type === getActionLoadingType(name)
+    ) {
       return payload;
     }
     return state;
@@ -23,52 +36,103 @@ export function definedModel(name, options) {
   const obj = {};
 
   // deal actions
-  actionKeys.forEach((key) => {
-    const fn = actions[key];
-    obj[key] = (...args) => {
+  actionKeys.forEach((actionName) => {
+    const fn = actions[actionName];
+    obj[actionName] = (...args) => {
       const totalState = store.getState();
       const preState = totalState[name];
-      const nextState = fn(preState, ...args);
+      const nextState = produce(preState, (draft) => {
+        const newState = fn(draft, ...args);
+        if (newState) {
+          Object.assign(draft, newState);
+        }
+      });
       store.dispatch({
-        type: key,
-        payload: Object.assign({}, preState, nextState),
+        type: getActionType(name, actionName),
+        payload: nextState,
       });
     };
   });
 
-  // deal effects
-  effectKeys.forEach((key) => {
-    const fn = effects[key];
-    obj[key] = (...args) => {
+  // deal effects and loading
+  effectKeys.forEach((effectName) => {
+    const fn = effects[effectName];
+    obj[effectName] = (...args) => {
       const totalState = store.getState();
       const preState = totalState[name];
       const that = {
         ...obj,
+        getState: () => preState,
         dispatch: (state) => {
           if (!state) return;
           if (Object.prototype.toString.call(state) !== "[object Object]") {
             console.log("input must object.");
             return;
           }
-          store.dispatch({
-            type: key,
-            payload: Object.assign({}, preState, state),
+          const nextState = produce(preState, (draft) => {
+            Object.assign(draft, state);
           });
+          store.dispatch({
+            type: getActionType(name, effectName),
+            payload: nextState,
+          });
+          setLoading(effectName, false);
         },
       };
+      setLoading(effectName, true);
       fn.apply(that, [...args]);
     };
+    obj[effectName].useLoading = function useLoading() {
+      return useSelector((state) => {
+        const curState = state[name];
+        const { selfLoading } = curState;
+        return selfLoading[effectName];
+      });
+    };
+
+    obj[effectName].getModelName = () => name;
+    obj[effectName].getName = () => effectName;
   });
 
+  // set loading action
+  function setLoading(actionName, isLoading = false) {
+    const totalState = store.getState();
+    const preState = totalState[name];
+    const nextState = produce(preState, (draft) => {
+      draft.selfLoading[actionName] = isLoading;
+    });
+    store.dispatch({
+      type: getActionLoadingType(name),
+      payload: nextState,
+    });
+  }
+
   // useData
-  function useData(fn) {
+  obj.useData = function useData(fn) {
     return useSelector((state) => {
       const curState = state[name];
       return fn ? fn(curState) : curState;
     });
-  }
-
-  obj.useData = useData;
+  };
 
   return obj;
+}
+
+// useLoading
+export function useLoading(...args) {
+  const nameList = args.map((fn) => {
+    return { modelName: fn.getModelName(), effectName: fn.getName() };
+  });
+  return useSelector((state) => {
+    if (nameList.length === 0) return false;
+    let loading = true;
+    nameList.forEach(({ modelName, effectName }) => {
+      const curState = state[modelName];
+      const { selfLoading } = curState;
+      if (!selfLoading[effectName]) {
+        loading = false;
+      }
+    });
+    return loading;
+  });
 }
