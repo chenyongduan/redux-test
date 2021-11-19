@@ -23,7 +23,7 @@
   align-items: center;
 }
 
-.row-section > button {
+button {
   cursor: pointer;
 }
 
