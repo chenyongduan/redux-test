@@ -1,6 +1,4 @@
-const countInitialState = { count: 0 };
-
-export function countReducer(state = countInitialState, action) {
+export function countReducer(state = { count: 0 }, action) {
   const { type, payload } = action;
   switch (type) {
     case "ADD_COUNT":
@@ -12,9 +10,7 @@ export function countReducer(state = countInitialState, action) {
   }
 }
 
-const stringInitialState = { title: "init string" };
-
-export function stringReducer(state = stringInitialState, action) {
+export function stringReducer(state = { title: "init string" }, action) {
   const { type, payload } = action;
   switch (type) {
     case "CHANGE_STRING":

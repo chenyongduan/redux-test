@@ -1,5 +1,5 @@
 import sleep from "sleep-promise";
-import { definedModel } from "./definedModel";
+import { definedModel } from "../lib/model/definedModel";
 
 const testModel = definedModel("testModel", {
   initialState: { count: 0, title: "effect title" },
@@ -16,17 +16,8 @@ const testModel = definedModel("testModel", {
   effects: {
     async getTitle(title) {
       await sleep(1000);
-      this.addCount();
       this.dispatch({
         title: title || "effect sleep",
-      });
-      this.getTitle11();
-      return "ok";
-    },
-    async getTitle11(title) {
-      await sleep(1000);
-      this.dispatch({
-        title: title || "effect sleep 2",
       });
       return "ok";
     },
