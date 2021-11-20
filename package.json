@@ -1,6 +1,6 @@
 {
-  "name": "redux-cyd",
-  "version": "0.1.0",
+  "name": "redux-model-easy",
+  "version": "0.0.2",
   "private": false,
   "main": "./lib/index",
   "dependencies": {
@@ -8,6 +8,7 @@
     "react-redux": "^7.2.6",
     "redux": "^4.1.2"
   },
+  "keywords": ["redux", "react", "react-native", "redux-model"],
   "devDependencies": {
     "@babel/cli": "^7.16.0",
     "@babel/core": "^7.16.0",
