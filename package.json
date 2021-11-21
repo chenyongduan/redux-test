@@ -1,14 +1,23 @@
 {
   "name": "redux-model-easy",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "private": false,
+  "repository": "https://github.com/chenyongduan/redux-test.git",
+  "description": "redux状态管理简化版",
+  "author": "cyd",
+  "license": "MIT",
   "main": "./lib/index",
   "dependencies": {
     "immer": "^9.0.6",
     "react-redux": "^7.2.6",
     "redux": "^4.1.2"
   },
-  "keywords": ["redux", "react", "react-native", "redux-model"],
+  "keywords": [
+    "redux",
+    "react",
+    "react-native",
+    "redux-model"
+  ],
   "devDependencies": {
     "@babel/cli": "^7.16.0",
     "@babel/core": "^7.16.0",
