@@ -1,6 +1,6 @@
 {
   "name": "redux-model-easy",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": false,
   "repository": "https://github.com/chenyongduan/redux-test.git",
   "description": "redux状态管理简化版",
@@ -8,11 +8,9 @@
   "license": "MIT",
   "main": "./lib/index",
   "dependencies": {
-    "foca": "^0.1.5",
     "immer": "^9.0.6",
     "react-redux": "^7.2.6",
-    "redux": "^4.1.2",
-    "redux-model-easy": "^0.0.2"
+    "redux": "^4.1.2"
   },
   "keywords": [
     "redux",
