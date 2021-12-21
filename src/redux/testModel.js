@@ -1,5 +1,5 @@
 import sleep from "sleep-promise";
-import { definedModel } from "../lib";
+import { definedModel } from "../lib/model/definedModel";
 
 const testModel = definedModel("testModel", {
   initialState: { count: 0, title: "effect title" },
